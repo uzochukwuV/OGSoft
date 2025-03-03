@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNetwork } from '@/app/providers';
 import { UploadCard } from '@/components/upload/UploadCard';
+import { HydrationErrorBoundary } from '@/components/common/HydrationErrorBoundary';
 
 /**
  * A container component that ensures proper remounting of UploadCard when network changes.
@@ -19,7 +20,9 @@ export default function UploadCardContainer() {
   return (
     // Use both networkType and a timestamp key to ensure proper remounting
     <div key={`${networkType}-${key}`}>
-      <UploadCard />
+      <HydrationErrorBoundary>
+        <UploadCard />
+      </HydrationErrorBoundary>
     </div>
   );
 } 

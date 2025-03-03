@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: process.env.NODE_ENV === 'development',
   webpack: (config: any, { webpack }: any) => {
     config.experiments = { ...config.experiments, topLevelAwait: true };
     config.externals['node:fs'] = 'commonjs node:fs';
@@ -18,4 +18,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

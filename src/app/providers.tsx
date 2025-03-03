@@ -4,6 +4,32 @@ import React, { createContext, useState, useEffect, useContext, useRef } from 'r
 import { WagmiConfig, createConfig } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from '@/config/wagmi';
+import { WalletProvider } from '@/context/WalletContext';
+
+// Suppress hydration-related console errors
+if (typeof window !== 'undefined') {
+  // Save original console.error
+  const originalConsoleError = console.error;
+  
+  // Override console.error to filter out hydration warnings
+  console.error = function(...args) {
+    // Check if this is a hydration error
+    const isHydrationError = 
+      args.some(arg => 
+        typeof arg === 'string' && (
+          arg.includes('hydration') || 
+          arg.includes('Hydrate') ||
+          arg.includes('text content did not match') || 
+          arg.includes('Hydration failed')
+        )
+      );
+    
+    // Only log non-hydration errors to the console
+    if (!isHydrationError) {
+      originalConsoleError.apply(console, args);
+    }
+  };
+}
 
 // Network context to share network state across components
 export type NetworkType = 'standard' | 'turbo';
@@ -94,7 +120,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             // You can render a minimal loading state here if needed
             <div className="min-h-screen" />
           ) : (
-            children
+            <WalletProvider>
+              {children}
+            </WalletProvider>
           )}
         </NetworkContext.Provider>
       </QueryClientProvider>

@@ -1,32 +1,32 @@
 'use client';
 
-import { Providers } from './providers';
-import UploadCardContainer from '@/components/upload/UploadCardContainer';
-import DownloadCardContainer from '@/components/download/DownloadCardContainer';
-import ConnectButton from '@/components/ConnectButton';
-import NetworkToggle from '@/components/NetworkToggle';
+import dynamic from 'next/dynamic';
+import React, { Suspense } from 'react';
+
+// Import the client page with ssr: false to completely avoid hydration mismatches
+const ClientOnlyPage = dynamic(
+  () => import('./client-page').then(mod => mod.ClientPage),
+  { 
+    ssr: false,
+    loading: () => <LoadingFallback />
+  }
+);
+
+// Simple loading fallback for the initial page load
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="animate-pulse text-blue-600 text-xl font-semibold">
+        Loading application...
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <Providers>
-      <main className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-end items-center space-x-4 mb-8">
-            <NetworkToggle />
-            <ConnectButton />
-          </div>
-          <div className="space-y-12">
-            <div>
-              <h1 className="text-2xl font-bold mb-4 text-blue-800 border-b-2 pb-2 border-blue-400 inline-block">Upload File</h1>
-              <UploadCardContainer />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold mb-4 text-blue-800 border-b-2 pb-2 border-blue-400 inline-block">Download File</h1>
-              <DownloadCardContainer />
-            </div>
-          </div>
-        </div>
-      </main>
-    </Providers>
+    <Suspense fallback={<LoadingFallback />}>
+      <ClientOnlyPage />
+    </Suspense>
   );
 }
