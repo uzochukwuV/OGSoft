@@ -3,13 +3,13 @@ import { cookieStorage, createStorage } from 'wagmi';
 
 // Define the zgTestnet chain
 export const zgTestnet = {
-  id: 16600,
-  name: '0G Newton Testnet',
-  network: '0g-newton-testnet',
+  id: 16601,
+  name: '0G Galileo Testnet',
+  network: '0g-galileo-testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'A0GI',
-    symbol: 'A0GI',
+    name: 'OG',
+    symbol: 'OG',
   },
   rpcUrls: {
     default: {
