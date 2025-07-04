@@ -270,20 +270,20 @@ NEXT_PUBLIC_PROJECT_ID=your_project_id_here
 # L1 RPC URL
 NEXT_PUBLIC_L1_RPC=https://evmrpc-testnet.0g.ai
 
-# Standard network (Slower with lower fees)
+# Standard network
 NEXT_PUBLIC_STANDARD_FLOW_ADDRESS=0x0460aA47b41a66694c0a73f667a1b795A5ED3556
-NEXT_PUBLIC_STANDARD_STORAGE_RPC=https://indexer-storage-testnet-standard.0g.ai
-NEXT_PUBLIC_STANDARD_EXPLORER_URL=https://chainscan-newton.0g.ai/tx/
+NEXT_PUBLIC_STANDARD_STORAGE_RPC=https://indexer-storage-testnet-turbo.0g.ai
+NEXT_PUBLIC_STANDARD_EXPLORER_URL=https://chainscan-galileo.0g.ai/tx/
 NEXT_PUBLIC_STANDARD_L1_RPC=https://evmrpc-testnet.0g.ai
 
-# Turbo network (Faster with higher fees)
+# Turbo network
 NEXT_PUBLIC_TURBO_FLOW_ADDRESS=0xbD2C3F0E65eDF5582141C35969d66e34629cC768
 NEXT_PUBLIC_TURBO_STORAGE_RPC=https://indexer-storage-testnet-turbo.0g.ai
-NEXT_PUBLIC_TURBO_EXPLORER_URL=https://chainscan-newton.0g.ai/tx/
+NEXT_PUBLIC_TURBO_EXPLORER_URL=https://chainscan-galileo.0g.ai/tx/
 NEXT_PUBLIC_TURBO_L1_RPC=https://evmrpc-testnet.0g.ai
 
-# Default network (standard or turbo)
-NEXT_PUBLIC_DEFAULT_NETWORK=standard
+# Default network
+NEXT_PUBLIC_DEFAULT_NETWORK=turbo
 ```
 
 ## Advanced Usage
