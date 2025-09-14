@@ -6,8 +6,8 @@ import ClientLayout from "@/components/ClientLayout"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "0G Storage",
-  description: "Storage Starter",
+  title: "Sophia • 0G Social",
+  description: "A creator platform on 0G blockchain",
 };
 
 export default function RootLayout({
