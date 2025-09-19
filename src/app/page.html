@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Feed - Neural Creator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111111;
+            color: #E0E0E0;
+        }
+        .sidebar {
+            background-color: #1A1A1A;
+            width: 256px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 24px;
+        }
+        .main-content {
+            margin-left: 256px;
+            padding: 24px 48px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            color: #A0A0A0;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-link:hover {
+            background-color: #2a2a2a;
+            color: #FFFFFF;
+        }
+        .nav-link.active {
+            background-color: #0096FF;
+            color: #FFFFFF;
+        }
+        .nav-link .material-icons {
+            margin-right: 16px;
+        }
+        .ai-assistant-card {
+            background-color: #252525;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-top: auto;
+        }
+        .feed-header button {
+            color: #A0A0A0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .feed-header button.active {
+            color: #FFFFFF;
+            border-bottom: 2px solid #0096FF;
+        }
+        .post-card {
+            background-color: #1A1A1A;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            overflow: hidden;
+            display: flex;
+            gap: 24px;
+            padding: 24px;
+        }
+        .post-card-alt {
+            flex-direction: row-reverse;
+        }
+    </style>
+</head>
+<body>
+<div class="flex">
+<div class="sidebar flex flex-col">
+<div class="flex items-center mb-10">
+<span class="material-icons text-3xl text-blue-500 mr-2">neurology</span>
+<h1 class="text-xl font-bold text-white">Neural Creator</h1>
+</div>
+<nav class="flex flex-col space-y-2">
+<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Feed</p>
+<a class="nav-link active" href="#">
+<span class="material-icons">home</span>
+                    Home
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">people</span>
+                    Following
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">trending_up</span>
+                    Trending
+                </a>
+<p class="text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">Create</p>
+<a class="nav-link" href="#">
+<span class="material-icons">auto_awesome</span>
+                    AI Studio
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">auto_fix_high</span>
+                    AI Assistant
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">people_outline</span>
+                    Collaborate
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">publish</span>
+                    Publish
+                </a>
+<p class="text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">Economy</p>
+<a class="nav-link" href="#">
+<span class="material-icons">attach_money</span>
+                    Earnings
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">token</span>
+                    NFTs
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">store</span>
+                    Marketplace
+                </a>
+<p class="text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">Community</p>
+<a class="nav-link" href="#">
+<span class="material-icons">message</span>
+                    Messages
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">group</span>
+                    Groups
+                </a>
+<a class="nav-link" href="#">
+<span class="material-icons">event</span>
+                    Events
+                </a>
+</nav>
+<div class="ai-assistant-card mt-auto">
+<img alt="AI Assistant avatar" class="w-16 h-16 rounded-full mx-auto mb-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlujsFGgg5K7ZDBBW_8_i5XnFkC9ogOhz9swaPiUVdMCZVmSS4FgupbOL_dTLY0leQw6oUIJDmbjm3-OUa_TgghIDELSxGGCO4oNvuzmjQR74DbEdd6UVOJ7NE4v2ruGTd5P27aFoyjp_cXB7-GMuqdQU3nzIpx3rA8bq_i0_x41NChaog0lkULL1_7A4k41Ze9La7azDVp-J52Hd6XvuNxMWNy-hNEC1FzlUhz9IQlQyoG8F9Z_Kw2jPLfgqyrRKfnV3tOxGfAPI"/>
+<p class="text-sm text-gray-400 mb-4">How can I help you create today?</p>
+<button class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600">Get Started</button>
+</div>
+</div>
+<main class="main-content flex-1">
+<header class="flex justify-between items-center mb-8">
+<h2 class="text-4xl font-bold text-white">Feed</h2>
+<div class="flex items-center space-x-4">
+<button><span class="material-icons">notifications_none</span></button>
+<button><span class="material-icons">apps</span></button>
+</div>
+</header>
+<div class="feed-header flex items-center border-b border-gray-700 mb-8">
+<button class="active">Home</button>
+<button>Following</button>
+<button>Trending</button>
+</div>
+<div class="post-card">
+<div class="w-1/2 relative">
+<img alt="AI-Generated Abstract Art" class="rounded-lg object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeq5Q_F_FyLYPpll13CtF1xS-45_Ry-BRj8gF0qifg6JyD6OM2Z9Np2tAGQSO9xouvXSP89GypRQKwgBIOkLt3d2sVO0DnqRyh0s7B2MqbhXjiO1kvK86852DCpYJGlkBKSMUp6Qk46Q1D_Zd5Xf4pbQn7Mm4o7DrfynrEo-2-uA7WmmVWwy0V0av7A8UobQaZQ2ucv8gJsYFWF0Xo03-Ft1l1Tkl5s46rXBRUI2Jqy5F3ukGgqI_JSDoBskmlqBgWje0NfJAiSG8"/>
+<div class="absolute top-3 left-3 bg-black bg-opacity-50 backdrop-blur-sm px-3 py-1 rounded-full flex items-center text-xs">
+<span class="material-icons text-sm mr-1 text-purple-400">auto_awesome</span>
+                        AI Enhanced
+                    </div>
+<div class="absolute bottom-3 left-3 bg-gray-900 bg-opacity-70 p-2 rounded-lg flex items-center space-x-2">
+<div class="w-4 h-4 bg-gray-500 rounded-full animate-pulse"></div>
+<span class="text-xs text-gray-300">Processing enhancements...</span>
+</div>
+</div>
+<div class="w-1/2 flex flex-col">
+<h3 class="text-2xl font-bold mb-2">AI-Generated Abstract Art</h3>
+<p class="text-gray-400 mb-4 flex-grow">Explore the latest abstract art created with AI. This piece combines vibrant colors and dynamic shapes to evoke emotion and intrigue.</p>
+<div class="flex items-center space-x-2 text-sm mb-4">
+<span class="material-icons text-sm text-green-400">paid</span>
+<span class="text-green-400 font-semibold">$15.00</span>
+<span class="text-gray-500">·</span>
+<button class="bg-green-500 bg-opacity-20 text-green-300 px-3 py-1 rounded-full text-xs font-semibold hover:bg-opacity-30">Tip Creator</button>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center">
+<img alt="SophiaArt's avatar" class="w-10 h-10 rounded-full mr-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3EPFg_XqZ2TWou8w2kB97scy5HWSW7k93p9Oj7pd4vT77ba7XQjTXoJ0Mia3AErN4Ot7xTQ01Yd_rEmaWvwZWhFZN0pU8zy_tvQTasf40yN-vwxi6RsnMOuDxZ0bD2nt0lw2-U30AnUBUXBxd6yJ4Ml-4i_TC7f_IDfBMQ-Xpw82OKe5OgFyGLwXi9EKge-ZiDoioI1FSPkNT9OH6kNTNWiuA93D3IJVbX__qtSLVHEScSVnTxP-ZixRIF1trviA2XKa8S6DJp6o"/>
+<div>
+<p class="text-white font-semibold">By @SophiaArt</p>
+<div class="flex items-center space-x-2 mt-1">
+<span class="material-icons text-lg text-blue-400" title="Shared on Twitter">flutter_dash</span>
+<span class="material-icons text-lg text-pink-400" title="Shared on Instagram">camera_alt</span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-4 text-gray-400">
+<span class="flex items-center"><span class="material-icons mr-1">favorite_border</span> 1.2k</span>
+<span class="flex items-center"><span class="material-icons mr-1">chat_bubble_outline</span> 345</span>
+</div>
+</div>
+</div>
+</div>
+<div class="post-card post-card-alt">
+<div class="w-1/2 relative">
+<img alt="Futuristic cityscape" class="rounded-lg object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMZ06ZZoIL3ODE1FTzL1G9p-kdo6ZRjMeLqeCrPjHsXCH0y8prmzDGELLxGo-j6TeUXIRGNx9J-1gOlNX_Xzu9YNHRrXgEMMTGMP0SCsn273CHu7fMMJsgrh_DiHVcrO8-uFvywk6eCuj3cukSts3t0pBowWBvqRSXcUO_vR0fF15-JE21MxdtckSpk0d9V17OEHHLYo9-uphppzf6A1evpPkypcFXeBw4LFmzHxppQuiOlerVQ284lBJtFkxC3IJ1LkxD2Zqgji8"/>
+<div class="absolute top-3 left-3 bg-black bg-opacity-50 backdrop-blur-sm px-3 py-1 rounded-full flex items-center text-xs">
+<span class="material-icons text-sm mr-1 text-cyan-400">group_work</span>
+                        AI Co-created
+                    </div>
+<div class="absolute bottom-3 right-3 bg-gray-900 bg-opacity-70 p-2 rounded-lg text-xs">
+<p class="font-semibold mb-1">INFT Status</p>
+<div class="flex items-center space-x-1">
+<div class="w-3 h-3 rounded-full bg-green-500"></div>
+<div class="w-3 h-3 rounded-full bg-green-500"></div>
+<div class="w-3 h-3 rounded-full bg-gray-600"></div>
+<span class="text-gray-400 ml-1">Evolving...</span>
+</div>
+</div>
+</div>
+<div class="w-1/2 flex flex-col">
+<h3 class="text-2xl font-bold mb-2">Futuristic Cityscape</h3>
+<p class="text-gray-400 mb-4 flex-grow">A stunning cityscape of the future, designed with AI. The image features towering skyscrapers, flying vehicles, and advanced technology.</p>
+<div class="flex items-center space-x-2 text-sm mb-4">
+<button class="bg-indigo-500 bg-opacity-20 text-indigo-300 px-3 py-1 rounded-full text-xs font-semibold hover:bg-opacity-30 flex items-center">
+<span class="material-icons text-base mr-1">add</span> Collaboration Request
+                        </button>
+</div>
+<div class="bg-gray-800 p-3 rounded-lg mb-4">
+<p class="text-xs text-gray-400 mb-2">Cross-platform performance</p>
+<div class="flex justify-between text-sm">
+<div class="flex items-center"><span class="material-icons text-lg text-pink-400 mr-1">camera_alt</span> 12.3k views</div>
+<div class="flex items-center"><span class="material-icons text-lg text-red-400 mr-1">play_circle</span> 8.1k views</div>
+<div class="flex items-center"><span class="material-icons text-lg text-blue-400 mr-1">flutter_dash</span> 4.5k likes</div>
+</div>
+<div class="flex space-x-2 mt-3">
+<button class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-full">Optimize for Instagram</button>
+<button class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-full">Optimize for TikTok</button>
+</div>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center">
+<img alt="EthanDesign's avatar" class="w-10 h-10 rounded-full mr-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCajcLNXT5HnJVOLE-LZNam-rQGbKstwQUCfyH3Li7c4gSEbyxCbc2IM8NhWB-h37Vwd-7MBOuDzFPECGxXyti2S0sH2tI_OLNKonexUD5N7meloRuK-p40JgTXDcVbAeDGpSaGiWgC65FJp7o9feDqLn7wSUpEgUIXmER3uNyunomsZpYD6ZntEFAVK-mv9uuP_I942fQy7q6bmaEZb__WXoLVMExeDGm73mROMO4xtDbMYzmk_y9biMmSMacfjT8yWbjoHPj9cCM"/>
+<p class="text-white font-semibold">By @EthanDesign</p>
+</div>
+<div class="flex items-center space-x-4 text-gray-400">
+<span class="flex items-center"><span class="material-icons mr-1">favorite_border</span> 2.5k</span>
+<span class="flex items-center"><span class="material-icons mr-1">chat_bubble_outline</span> 512</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>
