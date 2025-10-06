@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import WalletDropdown from '@/components/WalletDropdown';
+import GalleryView from '@/components/GalleryView';
 
 // Helper functions for creator types and social icons
 const getCreatorTypeColor = (type: string) => {
@@ -98,10 +99,47 @@ const Dashboard = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [mounted, setMounted] = useState(false);
   const [followedCreators, setFollowedCreators] = useState(['@SophiaArt', '@ComicMaster', '@PhotoPro']);
+  const [artworks, setArtworks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    fetchArtworks();
+  }, [activeTab, activeCategory, sortBy]);
+
+  const fetchArtworks = async () => {
+    setLoading(true);
+    try {
+      // Construct query parameters based on active filters
+      let queryParams = new URLSearchParams();
+      
+      if (activeCategory !== 'all') {
+        queryParams.append('category', activeCategory);
+      }
+      
+      if (activeTab === 'Following' && followedCreators.length > 0) {
+        // Extract creator IDs from followedCreators
+        const creatorIds = followedCreators.map(creator => creator.replace('@', ''));
+        queryParams.append('creators', creatorIds.join(','));
+      }
+      
+      queryParams.append('sort', sortBy);
+      
+      const response = await fetch(`/api/marketplace?${queryParams.toString()}`);
+      const data = await response.json();
+      
+      if (data.artworks) {
+        setArtworks(data.artworks);
+      }
+    } catch (error) {
+      console.error('Error fetching artworks:', error);
+      setArtworks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -115,6 +153,15 @@ const Dashboard = () => {
     { id: 'photography', name: 'Photography', icon: 'photo_camera' },
     { id: 'brand', name: 'Brands', icon: 'shopping_bag' }
   ];
+  
+  // Helper function to convert our styling functions to what GalleryView expects
+  const getCreatorTypeStyle = (type: string) => {
+    return getCreatorTypeColor(type);
+  };
+  
+  const getCategoryStyle = (category: string) => {
+    return getCategoryBadgeColor(category);
+  };
 
   const posts = [
     {
@@ -324,25 +371,59 @@ const Dashboard = () => {
           ))}
         </div>
         
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="category-filters flex flex-wrap gap-2 mb-8"
-        >
-          {categories.map((category) => (
-            <motion.button
-              key={category.id}
-              onClick={() => setActiveCategory(category.id)}
-              className={`flex items-center py-2 px-4 rounded-full text-sm ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-300'}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        <div className="flex justify-between items-center mb-8">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="category-filters flex flex-wrap gap-2"
+          >
+            {categories.map((category) => (
+              <motion.button
+                key={category.id}
+                onClick={() => setActiveCategory(category.id)}
+                className={`flex items-center py-2 px-4 rounded-full text-sm ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-300'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="material-icons text-sm mr-2">{category.icon}</span>
+                {category.name}
+              </motion.button>
+            ))}
+          </motion.div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 bg-gray-800 rounded-lg p-1">
+              <motion.button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-400'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="material-icons">grid_view</span>
+              </motion.button>
+              <motion.button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-400'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="material-icons">view_list</span>
+              </motion.button>
+            </div>
+            
+            <select 
+              className="bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
             >
-              <span className="material-icons text-sm mr-2">{category.icon}</span>
-              {category.name}
-            </motion.button>
-          ))}
-        </motion.div>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="price_high">Price: High to Low</option>
+              <option value="price_low">Price: Low to High</option>
+            </select>
+          </div>
+        </div>
 
         <AnimatePresence mode="wait">
           <motion.div 
@@ -352,418 +433,128 @@ const Dashboard = () => {
             exit={{ opacity: 0 }}
             transition={{ staggerChildren: 0.1 }}
           >
-             {activeTab === 'Following' ? (
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">Creators You Follow</h3>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center"
-                >
-                  <span className="material-icons mr-2">person_add</span>
-                  Find More Creators
-                </motion.button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {followedCreators.map((creatorName, index) => {
-                  const creator = posts.find(post => post.creator.name === creatorName)?.creator;
-                  if (!creator) return null;
-                  
-                  return (
-                    <motion.div
-                      key={`creator-${index}`}
-                      className="bg-gray-800 rounded-lg p-4 flex items-center"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    >
-                      <div className="w-16 h-16 rounded-full overflow-hidden mr-4">
-                        <img 
-                          src={creator.avatar} 
-                          alt={creator.name} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white">{creator.name}</h4>
-                        <p className={`text-xs px-2 py-0.5 rounded-full inline-block mt-1 ${getCreatorTypeColor(creator.type)}`}>
-                          {creator.type}
-                        </p>
-                        <div className="flex mt-2">
-                          <motion.button 
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="bg-blue-500 bg-opacity-20 text-blue-300 px-3 py-1 rounded-full text-xs font-semibold mr-2"
-                          >
-                            View Profile
-                          </motion.button>
-                          <motion.button 
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-xs font-semibold"
-                          >
-                            Unfollow
-                          </motion.button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-              
-              <h3 className="text-xl font-bold mb-4">Latest From Your Network</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {posts
-                  .filter(post => followedCreators.includes(post.creator.name))
-                  .slice(0, 4)
-                  .map((post, index) => (
-                    <motion.div
-                      key={`following-${post.id}`}
-                      className={`bg-gray-800 rounded-lg overflow-hidden shadow-md border-l-2 ${getCategoryBorderColor(post.category)}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    >
-                      <div className="flex h-40">
-                        <div className="w-1/3 overflow-hidden relative">
-                          <img 
-                            src={post.image} 
-                            alt={post.title} 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="w-2/3 p-4 flex flex-col">
-                          <div className="flex items-center mb-2">
-                            <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
-                              <img 
-                                src={post.creator.avatar} 
-                                alt={post.creator.name} 
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <span className="text-sm text-gray-300">{post.creator.name}</span>
-                            <span className="text-xs text-gray-500 ml-2">• 2h ago</span>
-                          </div>
-                          <h4 className="font-bold text-sm mb-2">{post.title}</h4>
-                          <p className="text-xs text-gray-400 line-clamp-2 mb-2">{post.description}</p>
-                          <div className="flex justify-between text-xs text-gray-400 mt-auto">
-                            <div className="flex items-center">
-                              <span className="material-icons text-xs mr-1">favorite</span>
-                              {post.likes}
-                            </div>
-                            <div className="flex items-center">
-                              <span className="material-icons text-xs mr-1">chat_bubble</span>
-                              {post.comments}
-                            </div>
-                            <motion.button 
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="text-blue-400 flex items-center"
-                            >
-                              <span className="material-icons text-xs mr-1">bookmark_border</span>
-                              Save
-                            </motion.button>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-              </div>
-            </div>
-          ) : activeTab === 'Trending' ? (
-            <div className="mb-8 bg-[#1A1A1A] p-6 rounded-xl">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">Trending Content</h3>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-400">Sort by:</span>
-                  <select className="bg-gray-800 text-white text-sm rounded-lg px-3 py-1 border border-gray-700">
-                    <option>Most Popular</option>
-                    <option>Newest</option>
-                    <option>Most Engagement</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {posts
-                  .filter(post => activeCategory === 'all' || post.category === activeCategory)
-                  .sort((a, b) => parseInt(b.likes.replace('k', '000')) - parseInt(a.likes.replace('k', '000')))
-                  .slice(0, 6)
-                  .map((post, index) => (
-                  <motion.div
-                    key={`trending-${post.id}`}
-                    className={`bg-gray-800 rounded-lg overflow-hidden shadow-md border-l-2 ${getCategoryBorderColor(post.category)}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            {activeTab === 'Following' && (
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-bold">Creators You Follow</h3>
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center"
                   >
-                    <div className="h-40 overflow-hidden relative">
-                      <img 
-                        src={post.image} 
-                        alt={post.title} 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-2 right-2">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${getCategoryBadgeColor(post.category)}`}>
-                          {post.category}
-                        </span>
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent h-16"></div>
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-bold text-sm mb-2 truncate">{post.title}</h4>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
-                            <img 
-                              src={post.creator.avatar} 
-                              alt={post.creator.name} 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <span className="text-xs text-gray-400">{post.creator.name}</span>
-                        </div>
-                        {post.price && <span className="text-xs text-green-400">{post.price}</span>}
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-400">
-                        <div className="flex items-center">
-                          <span className="material-icons text-xs mr-1">favorite</span>
-                          {post.likes}
-                        </div>
-                        <div className="flex items-center">
-                          <span className="material-icons text-xs mr-1">chat_bubble</span>
-                          {post.comments}
-                        </div>
-                        <motion.button 
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          className="text-blue-400 flex items-center"
-                        >
-                          <span className="material-icons text-xs mr-1">bookmark_border</span>
-                          Save
-                        </motion.button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          ) :
-            
-             
-            (  <div className="mb-8 bg-[#1A1A1A] p-6 rounded-xl">
-                <h3 className="text-xl font-bold mb-4">Trending in {activeCategory === 'all' ? 'All Content' : categories.find(c => c.id === activeCategory)?.name}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {posts
-                    .filter(post => activeCategory === 'all' || post.category === activeCategory)
-                    .slice(0, 3)
-                    .map((post, index) => (
+                    <span className="material-icons mr-2">person_add</span>
+                    Find More Creators
+                  </motion.button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  {followedCreators.map((creatorName, index) => {
+                    const creator = posts.find(post => post.creator.name === creatorName)?.creator;
+                    if (!creator) return null;
+                    
+                    return (
                       <motion.div
-                        key={`trending-${post.id}`}
-                        className={`bg-gray-800 rounded-lg overflow-hidden shadow-md border-l-2 ${getCategoryBorderColor(post.category)}`}
+                        key={`creator-${index}`}
+                        className="bg-gray-800 rounded-lg p-4 flex items-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.1 }}
+                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
                       >
-                        <div className="h-32 overflow-hidden relative">
+                        <div className="w-16 h-16 rounded-full overflow-hidden mr-4">
                           <img 
-                            src={post.image} 
-                            alt={post.title} 
+                            src={creator.avatar} 
+                            alt={creator.name} 
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute top-2 right-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${getCategoryBadgeColor(post.category)}`}>
-                              {post.category}
-                            </span>
-                          </div>
                         </div>
-                        <div className="p-3">
-                          <h4 className="font-bold text-sm mb-1 truncate">{post.title}</h4>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
-                                <img 
-                                  src={post.creator.avatar} 
-                                  alt={post.creator.name} 
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                              <span className="text-xs text-gray-400">{post.creator.name}</span>
-                            </div>
-                            {post.price && <span className="text-xs text-green-400">{post.price}</span>}
+                        <div>
+                          <h4 className="font-bold text-white">{creator.name}</h4>
+                          <p className={`text-xs px-2 py-0.5 rounded-full inline-block mt-1 ${getCreatorTypeColor(creator.type)}`}>
+                            {creator.type}
+                          </p>
+                          <div className="flex mt-2">
+                            <Link href={`/artist/${creator.name.replace('@', '')}`}>
+                              <motion.button 
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                className="bg-blue-500 bg-opacity-20 text-blue-300 px-3 py-1 rounded-full text-xs font-semibold mr-2"
+                              >
+                                View Profile
+                              </motion.button>
+                            </Link>
+                            <motion.button 
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-xs font-semibold"
+                            >
+                              Unfollow
+                            </motion.button>
                           </div>
                         </div>
                       </motion.div>
-                    ))}
+                    );
+                  })}
                 </div>
+              </div>
+            )}
+            
+            <div className="mb-8 bg-[#1A1A1A] p-6 rounded-xl">
+              <h3 className="text-xl font-bold mb-6">
+                {activeTab === 'Home' && 'Explore Artworks'}
+                {activeTab === 'Following' && 'Latest From Your Network'}
+                {activeTab === 'Trending' && 'Trending Artworks'}
+                {activeCategory !== 'all' && ` in ${categories.find(c => c.id === activeCategory)?.name}`}
+              </h3>
               
-              {posts
-                .filter(post => activeCategory === 'all' || post.category === activeCategory)
-                .map((post) => (
-              <motion.div
-                key={post.id}
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className={`flex ${post.isReversed ? 'flex-row-reverse' : 'flex-row'} bg-[#1A1A1A] rounded-2xl mb-8 overflow-hidden p-6 gap-6 border-l-4 ${getCategoryBorderColor(post.category)}`}
-              >
-                <div className="w-1/2 relative">
-                  <div className="relative w-full h-full min-h-[300px] rounded-lg overflow-hidden">
-                    <img 
-                      src={post.image} 
-                      alt={post.title}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-                  
-                  <div className={`absolute top-3 left-3 bg-black bg-opacity-50 backdrop-blur-sm px-3 py-1 rounded-full flex items-center text-xs`}>
-                    <span className={`material-icons text-sm mr-1 text-${post.badge.color}-400`}>{post.badge.icon}</span>
-                    {post.badge.text}
-                  </div>
-                  
-                  {post.status && (
-                    <div className={`absolute bottom-3 ${post.isReversed ? 'right-3' : 'left-3'} bg-gray-900 bg-opacity-70 p-2 rounded-lg flex items-center space-x-2`}>
-                      {!post.isReversed ? (
-                        <>
-                          <div className={`w-4 h-4 bg-${post.status.color}-500 rounded-full animate-pulse`}></div>
-                          <span className="text-xs text-gray-300">{post.status.text}</span>
-                        </>
-                      ) : (
-                        <>
-                          <p className="font-semibold mb-1 text-xs">INFT Status</p>
-                          <div className="flex items-center space-x-1">
-                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            <div className="w-3 h-3 rounded-full bg-gray-600"></div>
-                            <span className="text-gray-400 ml-1 text-xs">{post.status.text}</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="w-1/2 flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
-                    <motion.h3 
-                      className="text-2xl font-bold"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.2 }}
+              {/* Gallery View Component */}
+              <GalleryView 
+                artworks={artworks.map(artwork => ({
+                  ...artwork,
+                  thumbnailUrl: artwork.thumbnailUrl || artwork.image || 'https://via.placeholder.com/300',
+                  price: artwork.price || '0.00',
+                  isForSale: artwork.isForSale || false,
+                  saleStatus: artwork.saleStatus || 'unavailable',
+                  createdAt: artwork.createdAt || new Date().toLocaleDateString(),
+                  creator: {
+                    id: artwork.creator?.id || 0,
+                    name: artwork.creator?.name || 'Unknown Artist',
+                    address: artwork.creator?.address || '',
+                    profileImage: artwork.creator?.avatar || artwork.creator?.profileImage,
+                    artistType: artwork.creator?.type || artwork.creator?.artistType
+                  }
+                }))}
+                loading={loading}
+                viewMode={viewMode}
+                activeTab={activeTab}
+                activeCategory={activeCategory}
+                getCreatorTypeStyle={getCreatorTypeStyle}
+                getCategoryStyle={getCategoryStyle}
+              />
+              
+              {!loading && artworks.length === 0 && (
+                <div className="text-center py-12">
+                  <h3 className="text-xl font-medium text-gray-300">No artworks found</h3>
+                  <p className="text-gray-500 mt-2">
+                    {activeTab === 'Following' 
+                      ? 'Follow some artists to see their work here.' 
+                      : activeCategory !== 'all' 
+                      ? `No artworks found in the ${categories.find(c => c.id === activeCategory)?.name} category.` 
+                      : 'No artworks available at the moment.'}
+                  </p>
+                  <Link href="/publish">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center mx-auto"
                     >
-                      {post.title}
-                    </motion.h3>
-                    <span className={`text-xs px-2 py-1 rounded-full ${getCategoryBadgeColor(post.category)}`}>
-                       {post.category}
-                     </span>
-                  </div>
-                  
-                  <motion.p 
-                    className="text-gray-400 mb-4 flex-grow"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {post.description}
-                  </motion.p>
-                  
-                  {post.price && (
-                    <div className="flex items-center space-x-2 text-sm mb-4">
-                      <span className="material-icons text-sm text-green-400">paid</span>
-                      <span className="text-green-400 font-semibold">{post.price}</span>
-                      <span className="text-gray-500">·</span>
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-green-500 bg-opacity-20 text-green-300 px-3 py-1 rounded-full text-xs font-semibold hover:bg-opacity-30"
-                      >
-                        Tip Creator
-                      </motion.button>
-                    </div>
-                  )}
-                  
-                  {post.performance && (
-                    <motion.div 
-                      className="bg-gray-800 p-3 rounded-lg mb-4"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      <p className="text-xs text-gray-400 mb-2">Cross-platform performance</p>
-                      <div className="flex justify-between text-sm">
-                        <div className="flex items-center"><span className="material-icons text-lg text-pink-400 mr-1">camera_alt</span> {post.performance.instagram}</div>
-                        <div className="flex items-center"><span className="material-icons text-lg text-red-400 mr-1">play_circle</span> {post.performance.youtube}</div>
-                        <div className="flex items-center"><span className="material-icons text-lg text-blue-400 mr-1">flutter_dash</span> {post.performance.twitter}</div>
-                      </div>
-                      <div className="flex space-x-2 mt-3">
-                        <motion.button 
-                          whileHover={{ backgroundColor: '#4B5563' }}
-                          className="text-xs bg-gray-700 px-3 py-1 rounded-full"
-                        >
-                          Optimize for Instagram
-                        </motion.button>
-                        <motion.button 
-                          whileHover={{ backgroundColor: '#4B5563' }}
-                          className="text-xs bg-gray-700 px-3 py-1 rounded-full"
-                        >
-                          Optimize for TikTok
-                        </motion.button>
-                      </div>
-                    </motion.div>
-                  )}
-                  
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full mr-3 overflow-hidden">
-                      <img 
-                        src={post.creator.avatar} 
-                        alt={`${post.creator.name}'s avatar`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold">By {post.creator.name}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        {post.creator.type && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${getCreatorTypeColor(post.creator.type)}`}>
-                            {post.creator.type}
-                          </span>
-                        )}
-                        {post.socials && post.socials.map((social, idx) => (
-                          <span 
-                            key={idx}
-                            className={`material-icons text-lg ${getSocialIconColor(social)}`} 
-                            title={`Shared on ${social.charAt(0).toUpperCase() + social.slice(1)}`}
-                          >
-                            {getSocialIcon(social)}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    </div>
-                    <div className="flex items-center space-x-4 text-gray-400">
-                      <motion.span 
-                        className="flex items-center cursor-pointer"
-                        whileHover={{ color: '#F87171' }}
-                      >
-                        <span className="material-icons mr-1">favorite_border</span> {post.likes}
-                      </motion.span>
-                      <motion.span 
-                        className="flex items-center cursor-pointer"
-                        whileHover={{ color: '#60A5FA' }}
-                      >
-                        <span className="material-icons mr-1">chat_bubble_outline</span> {post.comments}
-                      </motion.span>
-                    </div>
-                  </div>
+                      <span className="material-icons mr-2">add</span>
+                      Publish Your Artwork
+                    </motion.button>
+                  </Link>
                 </div>
-              </motion.div>
-            ))}
-            </div>)}
+              )}
+            </div>
             
           </motion.div>
         </AnimatePresence>

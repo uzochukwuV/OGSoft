@@ -4,6 +4,9 @@ import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
 import Head from "next/head"
 import { Providers } from './providers';
+import { Toaster } from '../components/ui/sonner';
+
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +28,8 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <Providers>
           <ClientLayout>{children}</ClientLayout>
+          <Toaster />
+
         </Providers>
 
       </body>

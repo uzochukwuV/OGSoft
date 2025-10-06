@@ -33,7 +33,8 @@ const Navbar = ({ activeLink = 'Home' }: NavbarProps) => {
     { category: 'Economy', links: [
       { name: 'Earnings', icon: 'attach_money' },
       { name: 'NFTs', icon: 'token' },
-      { name: 'Marketplace', icon: 'store' }
+      { name: 'Marketplace', icon: 'store' },
+      { name: 'AI Marketplace', icon: 'smart_toy' }
     ]},
     { category: 'Community', links: [
       { name: 'Messages', icon: 'message' },
@@ -61,7 +62,13 @@ const Navbar = ({ activeLink = 'Home' }: NavbarProps) => {
             {category.links.map((link, linkIdx) => (
               <motion.a
                 key={linkIdx}
-                href={link.name === 'Publish' ? '/publish' : link.name === 'Home' ? '/dashboard' : '#'}
+                href={
+                  link.name === 'Publish' ? '/publish' : 
+                  link.name === 'Home' ? '/dashboard' : 
+                  link.name === 'AI Studio' ? '/ai-studio' : 
+                  link.name === 'AI Marketplace' ? '/ai-marketplace' : 
+                  '#'
+                }
                 whileHover={{ backgroundColor: '#2a2a2a', color: '#FFFFFF' }}
                 whileTap={{ scale: 0.98 }}
                 className={`flex items-center p-3 rounded-lg font-medium transition-colors ${link.name === activeLink ? 'bg-blue-500 text-white' : 'text-[#A0A0A0]'}`}

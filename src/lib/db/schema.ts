@@ -8,6 +8,7 @@ import { pgTable, serial, text, timestamp, boolean, integer, pgEnum, varchar, un
  * - Content uploaded by users (with blockchain root hash storage)
  * - Following relationships between users
  * - Content categories and types
+ * - Art marketplace specific tables and fields
  */
 
 // Enum for user types (creator, collector, etc.)
@@ -16,8 +17,14 @@ export const userTypeEnum = pgEnum('user_type', ['creator', 'collector', 'both']
 // Enum for content types
 export const contentTypeEnum = pgEnum('content_type', ['image', 'video', 'audio', 'document', 'other']);
 
+// Enum for artist types
+export const artistTypeEnum = pgEnum('artist_type', ['digital_artist', 'traditional_artist', 'photographer', 'designer', 'ui_designer', 'other']);
+
 // Enum for content status
 export const contentStatusEnum = pgEnum('content_status', ['draft', 'published', 'archived']);
+
+// Enum for sale status
+export const saleStatusEnum = pgEnum('sale_status', ['available', 'sold', 'reserved']);
 
 // Users table
 export const users = pgTable('users', {
@@ -29,6 +36,7 @@ export const users = pgTable('users', {
   avatarUrl: text('avatar_url'),
   coverUrl: text('cover_url'),
   userType: userTypeEnum('user_type').default('collector'),
+  artistType: artistTypeEnum('artist_type'),
   verified: boolean('verified').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -80,6 +88,10 @@ export const contents = pgTable('contents', {
   likeCount: integer('like_count').default(0),
   commentCount: integer('comment_count').default(0),
   
+  // Marketplace fields
+  isForSale: boolean('is_for_sale').default(true),
+  saleStatus: saleStatusEnum('sale_status').default('available'),
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -128,4 +140,58 @@ export const contentSaves = pgTable('content_saves', {
   return {
     contentUserSaveIdx: uniqueIndex('content_user_save_idx').on(table.contentId, table.userId),
   };
+});
+
+// Artwork details for art marketplace
+export const artworkDetails = pgTable('artwork_details', {
+  id: serial('id').primaryKey(),
+  contentId: integer('content_id').notNull().references(() => contents.id, { onDelete: 'cascade' }),
+  medium: varchar('medium', { length: 100 }),
+  dimensions: varchar('dimensions', { length: 100 }),
+  edition: varchar('edition', { length: 50 }),
+  editionCount: integer('edition_count'),
+  isOriginal: boolean('is_original').default(true),
+  createdYear: varchar('created_year', { length: 10 }),
+  materials: text('materials'),
+  framed: boolean('framed').default(false),
+  frameDetails: text('frame_details'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Transactions for art purchases
+export const transactions = pgTable('transactions', {
+  id: serial('id').primaryKey(),
+  contentId: integer('content_id').notNull().references(() => contents.id, { onDelete: 'cascade' }),
+  sellerId: integer('seller_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  buyerId: integer('buyer_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  price: varchar('price', { length: 50 }).notNull(),
+  txHash: varchar('tx_hash', { length: 66 }),
+  status: varchar('status', { length: 20 }).default('completed'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Commission requests
+export const commissionRequests = pgTable('commission_requests', {
+  id: serial('id').primaryKey(),
+  artistId: integer('artist_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  requesterId: integer('requester_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 200 }).notNull(),
+  description: text('description').notNull(),
+  budget: varchar('budget', { length: 50 }),
+  deadline: timestamp('deadline'),
+  status: varchar('status', { length: 20 }).default('pending'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Thumbnails for content preview
+export const thumbnails = pgTable('thumbnails', {
+  id: serial('id').primaryKey(),
+  contentId: integer('content_id').notNull().references(() => contents.id, { onDelete: 'cascade' }),
+  thumbnailUrl: text('thumbnail_url').notNull(),
+  width: integer('width'),
+  height: integer('height'),
+  size: integer('size'),
+  createdAt: timestamp('created_at').defaultNow(),
 });
